@@ -204,7 +204,9 @@ test('can use external logger instance with custom serializer', t => {
     }
   }, splitStream)
 
-  const localFastify = Fastify({logger: logger})
+  const localFastify = Fastify({
+    logger: logger
+  })
 
   localFastify.get('/foo', function (req, reply) {
     t.ok(req.log)
