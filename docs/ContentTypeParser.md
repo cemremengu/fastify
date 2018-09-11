@@ -71,3 +71,41 @@ fastify.addContentTypeParser('*', function (req, done) {
 ```
 
 In this way, all of the requests that do not have a corresponding content type parser will be handled by the specified function.
+
+This is also useful for piping the request stream. You can define a content parser like
+
+```js
+fastify.addContentTypeParser('*', function (req, done) {
+  done()
+})
+```
+
+and then access the core HTTP request directly for piping it where you want:
+
+```
+app.post('/hello', (request, reply) => {
+  reply.send(request.req)
+})
+```
+
+Here is a complete example that pipes images to cloud storage:
+
+```js
+fastify.addContentTypeParser('*', (req, done) => {
+    done();
+});
+
+fastify.route({
+    method: 'POST',
+    url: '/api/images/new',
+    handler: (req, res) => {
+        var data = [];
+        req.req.on('data', chunk => data.push(chunk));
+        req.req.on('end', () => {
+            req.body = Buffer.concat(data);
+            // do something with the body such as transforming it to base64
+            // upload to your cloud storage
+        });
+    }
+ ```
+});
